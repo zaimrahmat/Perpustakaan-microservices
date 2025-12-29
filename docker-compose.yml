@@ -1,0 +1,61 @@
+services:
+  user_db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: userdb
+      POSTGRES_PASSWORD: userdbpass
+      POSTGRES_DB: user_db
+    ports:
+      - "5433:5432"
+    networks: [appnet]
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+
+  project_db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: projectdb
+      POSTGRES_PASSWORD: projectdbpass
+      POSTGRES_DB: project_db
+    ports:
+      - "5434:5432"
+    networks: [appnet]
+    volumes:
+      - project_db_data:/var/lib/postgresql/data
+
+  auth_service:
+    build: ../services/auth_service
+    env_file: ../services/auth_service/.env
+    depends_on: [user_db]
+    ports:
+      - "8001:8000"
+    networks: [appnet]
+
+  project_service:
+    build: ../services/project_service
+    env_file: ../services/project_service/.env
+    depends_on: [project_db, auth_service]
+    ports:
+      - "8002:8000"
+    networks: [appnet]
+    volumes:
+      - project_uploads:/app/uploads
+    environment:
+      - UPLOAD_DIR=/app/uploads
+
+  gateway_service:
+    build: ../services/gateway_service
+    env_file: ../services/gateway_service/.env
+    depends_on: [auth_service, project_service]
+    ports:
+      - "8000:8000"
+    networks: [appnet]
+    command: python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+networks:
+  appnet:
+
+volumes:
+  user_db_data:
+  project_db_data:
+  project_uploads:
