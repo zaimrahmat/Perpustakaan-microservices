@@ -1,0 +1,155 @@
+/* style.css - Deep Blue Premium (Full White Text & Logo Fix) */
+
+:root {
+  --bg-dark: #0f172a;
+  --bg-card: #1e293b;
+  --primary-blue: #3b82f6;
+  --accent-cyan: #22d3ee;
+  --text-pure: #ffffff;
+  --text-muted: #cbd5e1;
+  --input-bg: #334155;
+  --card-radius: 18px;
+}
+
+/* Base Body & Global Text */
+html, body, .bg-soft {
+  min-height: 100vh !important;
+  background-color: var(--bg-dark) !important;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(34, 211, 238, 0.1) 0px, transparent 50%) !important;
+  color: var(--text-pure) !important; /* Paksa teks dasar jadi putih */
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Memaksa Semua Elemen di dalam Card Menjadi Putih */
+.card-soft, .card, .card-body, .card-body div, .card-body span, .card-body label {
+  color: var(--text-pure) !important;
+}
+
+.card-soft, .card {
+  background-color: var(--bg-card) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: var(--card-radius) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Navbar Dashboard */
+.navbar, .navbar-brand, .nav-link, #who {
+  color: var(--text-pure) !important;
+  background-color: rgba(15, 23, 42, 0.9) !important;
+}
+
+/* Tabel Daftar Buku - Putih & Cyan */
+.table {
+  color: var(--text-pure) !important;
+  --bs-table-bg: transparent !important;
+}
+
+.table thead th {
+  color: var(--accent-cyan) !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-bottom: 2px solid rgba(34, 211, 238, 0.3) !important;
+}
+
+.table tbody td {
+  color: var(--text-pure) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Input Form */
+.form-control {
+  background-color: var(--input-bg) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+.input-group-text {
+  background-color: #1e293b !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: var(--accent-cyan) !important;
+}
+
+/* Tombol & Link */
+.btn-primary, .btn-wide {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.text-muted, .kbd-hint, .small {
+  color: var(--text-muted) !important;
+}
+
+a {
+  color: var(--accent-cyan) !important;
+  text-decoration: none !important;
+}
+
+.brand-dot {
+  background: var(--accent-cyan) !important;
+  box-shadow: 0 0 12px var(--accent-cyan) !important;
+}
+/* Membuat tombol pilih file (Choose File) mengikuti tema biru */
+input[type="file"]::file-selector-button {
+  background-color: var(--primary-blue) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 6px;
+  padding: 4px 12px;
+  margin-right: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+/* Efek hover pada tombol file */
+input[type="file"]::file-selector-button:hover {
+  background-color: #2563eb !important;
+}
+
+/* Memastikan teks nama file yang dipilih berwarna putih */
+input[type="file"] {
+  color: var(--text-pure) !important;
+}
+
+/* Memperbaiki tampilan input form-control di dalam card */
+.card-soft .form-control {
+  background-color: var(--input-bg) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+/* Memastikan label tetap putih bersih */
+.form-label {
+  color: var(--text-pure) !important;
+  font-weight: 500;
+}
+.btn-outline-info {
+  color: var(--accent-cyan) !important;
+  border-color: var(--accent-cyan) !important;
+  background-color: transparent !important;
+  transition: all 0.3s ease !important;
+}
+
+.btn-outline-info:hover {
+  background-color: var(--accent-cyan) !important;
+  color: #0f172a !important; /* Teks jadi gelap saat hover agar terbaca di atas cyan */
+  box-shadow: 0 0 15px rgba(34, 211, 238, 0.4) !important;
+}
+
+/* Penyesuaian ikon PDF di dalam tombol */
+.btn-outline-info i {
+  margin-right: 5px;
+}
+
+/* Opsional: Tambahkan di style.css untuk mempercantik */
+.text-secondary.small {
+  opacity: 0.8;
+  font-size: 0.75rem;
+  color: #94a3b8 !important; /* Warna abu-abu kebiruan agar senada dengan tema */
+}
+
+.text-muted.small div {
+  margin-bottom: 4px;
+  font-weight: 400;
+}

@@ -1,0 +1,45 @@
+# =====================
+# ENV & SECRETS
+# =====================
+.env
+.env.*
+*.env
+
+# =====================
+# PYTHON
+# =====================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# =====================
+# DATABASE (PostgreSQL TIDAK disimpan di repo)
+# =====================
+# (Tidak perlu ignore .db karena kamu pakai PostgreSQL)
+# Tapi tetap ignore dump lokal jika ada
+*.sql
+*.dump
+
+# =====================
+# UPLOADS / FILE STORAGE
+# =====================
+uploads/
+app/uploads/
+services/**/uploads/
+
+# =====================
+# DOCKER
+# =====================
+*.log
+docker-compose.override.yml
+
+# =====================
+# OS & EDITOR
+# =====================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
