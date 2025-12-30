@@ -96,12 +96,34 @@ async def upload_book_pdf(id_buku: int, file: UploadFile = File(...), request: R
 # =========================
 # PROXY ROUTES (AUTH & API)
 # =========================
-@app.api_route("/auth/{path:path}", methods=["GET", "POST", "PUT", "DELETE","HEAD","OPTIONS","PATCH"])
+@app.get("/auth/{path:path}", operation_id="proxy_auth_get")
+async def proxy_auth_get(path: str, request: Request):
+    return await proxy_auth(path=path, request=request)
+
+@app.post("/auth/{path:path}", operation_id="proxy_auth_post")
+async def proxy_auth_post(path: str, request: Request):
+    return await proxy_auth(path=path, request=request)
+
+@app.put("/auth/{path:path}", operation_id="proxy_auth_put")
+async def proxy_auth_put(path: str, request: Request):
+    return await proxy_auth(path=path, request=request)
+@app.delete("/auth/{path:path}", operation_id="proxy_auth_delete")
+async def proxy_auth_delete(path: str, request: Request):
+    return await proxy_auth(path=path, request=request)
+
+@app.head("/auth/{path:path}", operation_id="proxy_auth_head")
+async def proxy_auth_head(path: str, request: Request):
+    return await proxy_auth(path=path, request=request)
+
+@app.options("/auth/{path:path}", operation_id="proxy_auth_options")
+async def proxy_auth_options(path: str, request: Request):
+    return await proxy_auth(path=path, request=request)
+
 async def proxy_auth(path: str, request: Request):
     p = _norm(path)
     url = f"{AUTH}/{p}" if p else AUTH
 
-    async with httpx.AsyncClient(timeout=30.0, follow_redirects=False, verify=False) as client:
+    async with httpx.AsyncClient(timeout=30.0, follow_redirects=False) as client:
         resp = await client.request(
             request.method,
             url,
@@ -113,7 +135,27 @@ async def proxy_auth(path: str, request: Request):
     headers = _sanitize_response_headers(dict(resp.headers))
     return Response(content=resp.content, status_code=resp.status_code, headers=headers)
 
-@app.api_route("/api/{path:path}", methods=["GET", "POST", "PUT", "DELETE","HEAD","OPTIONS","PATCH"])
+
+@app.get("/project/{path:path}", operation_id="proxy_project_get")
+async def proxy_project_get(path: str, request: Request):
+    return await proxy_project(path=path, request=request)
+
+@app.post("/project/{path:path}", operation_id="proxy_project_post")
+async def proxy_project_post(path: str, request: Request):
+    return await proxy_project(path=path, request=request)
+
+@app.put("/project/{path:path}", operation_id="proxy_project_put")
+async def proxy_project_put(path: str, request: Request):
+    return await proxy_project(path=path, request=request)
+
+@app.delete("/project/{path:path}", operation_id="proxy_project_delete")
+async def proxy_project_delete(path: str, request: Request):
+    return await proxy_project(path=path, request=request)
+
+@app.options("/project/{path:path}", operation_id="proxy_project_options")
+async def proxy_project_options(path: str, request: Request):
+    return await proxy_project(path=path, request=request)
+
 async def proxy_project(path: str, request: Request):
     p = _norm(path)
     url = f"{PROJ}/{p}" if p else PROJ
