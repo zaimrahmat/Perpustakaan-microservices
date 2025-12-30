@@ -96,7 +96,7 @@ async def upload_book_pdf(id_buku: int, file: UploadFile = File(...), request: R
 # =========================
 # PROXY ROUTES (AUTH & API)
 # =========================
-@app.api_route("/auth/{path:path}", methods=["GET", "POST", "PUT", "DELETE","HEAD"])
+@app.api_route("/auth/{path:path}", methods=["GET", "POST", "PUT", "DELETE","HEAD","OPTIONS","PATCH"])
 async def proxy_auth(path: str, request: Request):
     p = _norm(path)
     url = f"{AUTH}/{p}" if p else AUTH
@@ -113,7 +113,7 @@ async def proxy_auth(path: str, request: Request):
     headers = _sanitize_response_headers(dict(resp.headers))
     return Response(content=resp.content, status_code=resp.status_code, headers=headers)
 
-@app.api_route("/api/{path:path}", methods=["GET", "POST", "PUT", "DELETE","HEAD"])
+@app.api_route("/api/{path:path}", methods=["GET", "POST", "PUT", "DELETE","HEAD","OPTIONS","PATCH"])
 async def proxy_project(path: str, request: Request):
     p = _norm(path)
     url = f"{PROJ}/{p}" if p else PROJ
