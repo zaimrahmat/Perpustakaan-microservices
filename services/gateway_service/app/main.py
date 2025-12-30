@@ -1,19 +1,24 @@
 import os
 import httpx
+from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.responses import Response, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi import UploadFile, File
 
+BASE_DIR = Path(__file__).resolve().parent  # folder app/
+static_dir = BASE_DIR / "static"
+templates_dir = BASE_DIR / "templates"
+
 AUTH = os.getenv("AUTH_SERVICE_URL", "http://auth_service:8000")
 PROJ = os.getenv("PROJECT_SERVICE_URL", "http://project_service:8000")
 
 app = FastAPI(title="Gateway Service")
 
-# templates & static harus setelah app dibuat
-templates = Jinja2Templates(directory="app/templates")
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+
+templates = Jinja2Templates(directory=str(templates_dir))
 
 # =========================
 # UI ROUTES
