@@ -2,10 +2,16 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = os.getenv("USER_DB_URL", "sqlite:///./user.db")
 
-connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
-engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=True)
+DATABASE_URL = os.getenv("USER_DB_URL")
+
+if not DATABASE_URL:
+    raise RuntimeError("USER_DB_URL environment variable is not set")
+
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
