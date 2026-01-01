@@ -172,6 +172,26 @@ async def proxy_project(path: str, request: Request):
     headers = _sanitize_response_headers(dict(resp.headers))
     return Response(content=resp.content, status_code=resp.status_code, headers=headers)
 
+# =========================
+# PROXY ROUTES (API -> PROJECT)
+# =========================
+@app.api_route("/api/{path:path}", methods=["GET","POST","PUT","PATCH","DELETE","OPTIONS","HEAD"])
+async def proxy_api(path: str, request: Request):
+    p = _norm(path)  
+    url = f"{PROJ}/{p}" if p else PROJ
+
+    async with httpx.AsyncClient(timeout=30.0, follow_redirects=False) as client:
+        resp = await client.request(
+            request.method,
+            url,
+            headers=_forward_headers(request),
+            params=dict(request.query_params),
+            content=await request.body(),
+        )
+
+    headers = _sanitize_response_headers(dict(resp.headers))
+    return Response(content=resp.content, status_code=resp.status_code, headers=headers)
+
 # ========= STATIC UPLOADS =========
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "/app/uploads")  # PAKAI PATH ABSOLUT
 os.makedirs(UPLOAD_DIR, exist_ok=True)
