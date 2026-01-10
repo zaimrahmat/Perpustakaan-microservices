@@ -210,6 +210,7 @@ function escapeHtml(s){
 }
 
 let isAdmin = false;
+let currentUser = "";
 let editModal = null;
 let allBooks = [];
 
@@ -225,10 +226,10 @@ async function refresh(){
   const sub = p.sub || "(unknown)";
   const role = p.r === "a" ? "admin" : "user";
   isAdmin = (p.r === "a");
+  currentUser = sub.toLowerCase();
 
   document.getElementById("who").textContent = `${sub} (${role})`;
   document.getElementById("adminPanel").classList.toggle("d-none", !isAdmin);
-  document.getElementById("actHead").classList.toggle("d-none", !isAdmin);
 
   const res = await fetch("/api/books", {
     headers: { "Authorization": "Bearer " + auth.token }
@@ -259,41 +260,56 @@ function renderRows(){
     return t.includes(q);
   });
 
+  const hasOwnBook = isAdmin || filtered.some(b => (b.penulis || "").toLowerCase() === currentUser);
+  document.getElementById("actHead").classList.toggle("d-none", !hasOwnBook);
+
   tbody.innerHTML = "";
 
   if (filtered.length === 0) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="${isAdmin ? 6 : 5}" class="text-center text-muted py-4">Data tidak ditemukan</td>`;
+    tr.innerHTML = `<td colspan="${hasOwnBook ? 7 : 6}" class="text-center text-muted py-4">Data tidak ditemukan</td>`;
     tbody.appendChild(tr);
     return;
   }
 
   for(const b of filtered){
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td class="fw-semibold">${b.id_buku}</td>
-      <td>${escapeHtml(b.judul)}</td>
-      <td>${escapeHtml(b.penulis)}</td>
-      <td>${b.tahun ?? ""}</td>
-      <td>${b.tersedia ? '<span class="badge badge-soft">Ya</span>' : '<span class="badge text-bg-secondary">Tidak</span>'}</td>
+  const penulis = (b.penulis || "").toLowerCase();
+  const canEdit = isAdmin || penulis === currentUser;
+  const canDelete = isAdmin;
+
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td class="fw-semibold">${b.id_buku}</td>
+    <td>${escapeHtml(b.judul)}</td>
+    <td>${escapeHtml(b.penulis)}</td>
+    <td>${b.tahun ?? ""}</td>
+    <td>${b.tersedia ? '<span class="badge badge-soft">Ya</span>' : '<span class="badge text-bg-secondary">Tidak</span>'}</td>
+    <td>
       ${b.pdf_url ? `
-      <a href="/api${b.pdf_url}" target="_blank" class="btn btn-sm btn-outline-info">
-        <i class="bi bi-file-earmark-pdf"></i> PDF
+        <a href="/api${b.pdf_url}" target="_blank" class="btn btn-sm btn-outline-info">
+          <i class="bi bi-file-earmark-pdf"></i> PDF
         </a>
-        ` : `<span class="text-muted small">No File</span>`}
-          </td>
-      ${isAdmin ? `
-        <td class="text-end">
-          <button class="btn btn-outline-primary btn-sm me-1" onclick='openEdit(${JSON.stringify(b)})'>
+      ` : `<span class="text-muted small">No File</span>`}
+    </td>
+    ${(canEdit || canDelete) ? `
+      <td class="text-end">
+        ${canEdit ? `
+          <button class="btn btn-outline-primary btn-sm me-1"
+            onclick='openEdit(${JSON.stringify(b)})'>
             <i class="bi bi-pencil-square me-1"></i>Edit
           </button>
-          <button class="btn btn-outline-danger btn-sm" onclick='deleteBook(${b.id_buku})'>
+        ` : ``}
+        ${canDelete ? `
+          <button class="btn btn-outline-danger btn-sm"
+            onclick='deleteBook(${b.id_buku})'>
             <i class="bi bi-trash me-1"></i>Hapus
           </button>
-        </td>` : ``}
-    `;
-    tbody.appendChild(tr);
-  }
+        ` : ``}
+      </td>
+    ` : ``}
+  `;
+  tbody.appendChild(tr);
+}
 }
 
 async function createBook(){
@@ -365,11 +381,16 @@ async function createBook(){
 }
 
 function openEdit(book){
-  if(!isAdmin) return;
+  const penulis = (book.penulis || "").toLowerCase();
+  if(!isAdmin && penulis !== currentUser){
+    showError("Access denied: ini bukan buku milik Anda.");
+    return;
+  }
 
   document.getElementById("e_id").value = book.id_buku;
   document.getElementById("e_judul").value = book.judul ?? "";
   document.getElementById("e_penulis").value = book.penulis ?? "";
+  document.getElementById("e_penulis").disabled = !isAdmin;
   document.getElementById("e_tahun").value = book.tahun ?? "";
   document.getElementById("e_tersedia").checked = !!book.tersedia;
 
@@ -380,10 +401,11 @@ function openEdit(book){
 }
 
 async function saveEdit(){
-  if(!isAdmin){
-    showError("Hanya admin yang boleh edit buku.");
-    return;
-  }
+  const penulisLower = document.getElementById("e_penulis").value.trim().toLowerCase();
+if(!isAdmin && penulisLower !== currentUser){
+  showError("Access denied: Anda hanya boleh mengedit buku milik sendiri.");
+  return;
+}
 
   const auth = getAuth();
   if(!auth){
@@ -398,10 +420,14 @@ async function saveEdit(){
   const tersedia = document.getElementById("e_tersedia").checked;
 
   if(!judul) return showError("Judul wajib diisi.");
-  if(!penulis) return showError("Penulis wajib diisi.");
+  const payload = { judul, tersedia };
+if (tahunRaw !== "") payload.tahun = Number(tahunRaw);
 
-  const payload = { judul, penulis, tersedia };
-  if (tahunRaw !== "") payload.tahun = Number(tahunRaw);
+if (isAdmin) {
+  const penulis = document.getElementById("e_penulis").value.trim();
+  if(!penulis) return showError("Penulis wajib diisi.");
+  payload.penulis = penulis;
+}
 
   const res = await fetch(`/api/books/${id_buku}`, {
     method: "PUT",
